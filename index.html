@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bengkel Pak Yono</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .links a { display: inline-block; margin: 5px; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .links a.wa { background: #25D366; }
+        .links a.maps { background: #DB4437; }
+        .queue-box { text-align: center; padding: 20px; background: #eef; border-radius: 8px; margin: 20px 0; }
+        .sisa-kuota { font-size: 48px; font-weight: bold; color: #d9534f; }
+        input { display: block; width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; }
+        button:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Bengkel Pak Yono</h1>
+        <p>Solusi Terbaik untuk Kendaraan Anda</p>
+        <div class="links">
+            <a class="maps" href="https://maps.app.goo.gl/kbYjLvwyY3o5fkVQ6" target="_blank">📍 Lokasi Bengkel</a>
+            <a class="wa" href="https://api.whatsapp.com/send/?phone=6287830254778&text=Halo%20Pak%20Yono,%20saya%20ingin%20konsultasi..." target="_blank">💬 Konsultasi (WA)</a>
+            <a href="https://linkbio.co/Yonzharga" target="_blank">💰 Cek Harga</a>
+            <br><br>
+            <a href="https://youtube.com/@bengkelpakyono" target="_blank">YouTube</a>
+            <a href="https://www.tiktok.com/@bengkelpakyono" target="_blank">TikTok</a>
+            <a href="https://www.facebook.com/share/1Dyte1oisu/" target="_blank">Facebook</a>
+            <a href="https://www.instagram.com/bengkelpakyono" target="_blank">Instagram</a>
+        </div>
+    </div>
+
+    <!-- Sistem Rebutan Antrian -->
+    <div class="queue-box">
+        <h2>Sisa Antrian Hari Ini</h2>
+        <div class="sisa-kuota" id="sisaAngka">Memuat...</div>
+        <p>Sistem rebutan siapa cepat dia dapat. Reset setiap jam 00:00.</p>
+    </div>
+
+    <!-- Form Login User untuk Antri -->
+    <div id="formAntrian">
+        <h3>Ambil Antrian Sekarang</h3>
+        <input type="text" id="nama" placeholder="Nama Lengkap" required>
+        <input type="email" id="email" placeholder="Alamat Email" required>
+        <input type="tel" id="telepon" placeholder="Nomor Telepon / WA" required>
+        <input type="text" id="motor" placeholder="Merk & Tipe Motor (Contoh: NMAX 155)" required>
+        <button id="btnAmbil" onclick="kirimAntrian()">AMBIL NOMOR ANTRIAN</button>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+
+    // Terima update realtime dari server
+    socket.on('updateAntrian', (data) => {
+        document.getElementById('sisaAngka').innerText = data.sisa;
+        const btn = document.getElementById('btnAmbil');
+        if (data.sisa <= 0) {
+            btn.innerText = "ANTRIAN PENUH";
+            btn.disabled = true;
+            btn.style.background = "#d9534f";
+        } else {
+            btn.innerText = "AMBIL NOMOR ANTRIAN";
+            btn.disabled = false;
+            btn.style.background = "#28a745";
+        }
+    });
+
+    socket.on('suksesAntri', (data) => {
+        alert("BERHASIL! Nomor Antrian Anda: " + data.nomor);
+        document.getElementById('formAntrian').innerHTML = `<h3>Anda memiliki Nomor Antrian: ${data.nomor}</h3><p>Silakan tunjukkan layar ini ke admin bengkel.</p>`;
+    });
+
+    socket.on('antrianPenuh', (data) => {
+        alert(data.pesan);
+    });
+
+    function kirimAntrian() {
+        const nama = document.getElementById('nama').value;
+        const email = document.getElementById('email').value;
+        const telepon = document.getElementById('telepon').value;
+        const motor = document.getElementById('motor').value;
+
+        if(!nama || !email || !telepon || !motor) {
+            alert("Harap lengkapi semua data!");
+            return;
+        }
+
+        socket.emit('ambilAntrian', { nama, email, telepon, motor_merk: motor });
+    }
+</script>
+
+</body>
+</html>

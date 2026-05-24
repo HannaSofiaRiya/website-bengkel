@@ -1,0 +1,27 @@
+{
+  "_id": "user_001",
+  "nama": "Budi Santoso",
+  "email": "budi@email.com",
+  "telepon": "08123456789",
+  "merk_motor": "Honda Vario 150"
+}
+
+{
+  "_id": "admin_001",
+  "email": "admin@bengkelpakyono.com",
+  "password_hash": "hashed_password_here"
+}
+
+{
+  "_id": "q_2026_05_24",
+  "tanggal": "2026-05-24",
+  "kuota_maksimal": 20, 
+  "sisa_kuota": 5,
+  "daftar_antrian": [
+    {
+      "nomor_antrian": 1,
+      "user_id": "user_001",
+      "waktu_booking": "2026-05-24T08:01:12Z"
+    }
+  ]
+}
